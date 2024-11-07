@@ -117,11 +117,14 @@ async function run() {
 
   async function reimportServer(): Promise<ServerBuild> {
     // cjs: manually remove the server build from the require cache
-    Object.keys(require.cache).forEach((key) => {
-      if (key.startsWith(BUILD_PATH)) {
-        delete require.cache[key];
-      }
-    });
+    if (require.cache != null) {
+      Object.keys(require.cache).forEach((key) => {
+        if (key.startsWith(BUILD_PATH)) {
+          console.log(key);
+          delete require.cache[key];
+        }
+      });
+    }
 
     const stat = fs.statSync(BUILD_PATH);
 
