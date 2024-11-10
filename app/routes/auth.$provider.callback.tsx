@@ -1,5 +1,6 @@
 import { redirect } from "@remix-run/node"
 import type { LoaderFunctionArgs } from "@remix-run/node";
+
 import { authenticator } from "~/services/auth.server";
 import type { AuthStrategy } from "~/services/auth.server";
 

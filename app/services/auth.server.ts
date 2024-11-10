@@ -1,8 +1,10 @@
-import { Authenticator } from "remix-auth";
-import { sessionStorage } from "~/services/session.server";
-import { AuthStrategies } from "~/services/auth_strategies";
-import { formStrategy } from "./auth_strategies/form.strategy";
 import { User } from "@prisma/client";
+import { Authenticator } from "remix-auth";
+
+import { AuthStrategies } from "~/services/auth_strategies";
+import { sessionStorage } from "~/services/session.server";
+
+import { formStrategy } from "./auth_strategies/form.strategy";
 
 export type AuthStrategy =  typeof AuthStrategies[keyof typeof AuthStrategies];
 
