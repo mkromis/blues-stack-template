@@ -1,6 +1,7 @@
 import { Form } from "@remix-run/react"
-import { AuthStrategies } from "~/services/auth_strategies";
+
 import type { AuthStrategy } from "~/services/auth.server";
+import { AuthStrategies } from "~/services/auth_strategies";
 
 interface SocialButtonProps {
   provider: AuthStrategy,

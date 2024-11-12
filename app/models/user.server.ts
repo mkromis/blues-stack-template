@@ -44,7 +44,7 @@ export async function verifyLogin(
   });
 
   if (!userWithPassword || !userWithPassword.password) {
-    return null;
+    throw new Error("Bad email or password");
   }
 
   const isValid = await bcrypt.compare(
@@ -53,7 +53,7 @@ export async function verifyLogin(
   );
 
   if (!isValid) {
-    return null;
+    throw new Error("User not valid");
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
