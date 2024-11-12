@@ -21,13 +21,16 @@ async function run() {
   const VERSION_PATH = path.resolve("build/version.txt");
 
   const initialBuild = await reimportServer();
-  const remixHandler =
+
+  // setup dev server instance
+  const viteDevServer =
     process.env.NODE_ENV === "development"
-      ? await createDevRequestHandler(initialBuild)
-      : createRequestHandler({
-          build: initialBuild,
-          mode: initialBuild.mode,
-        });
+      ? undefined
+      : await import("vite").then((vite) =>
+          vite.createServer({
+            server: {middlewareMode: true}
+          })
+      )
 
   const app = express();
   const metricsApp = express();
@@ -86,6 +89,19 @@ async function run() {
   // http://expressjs.com/en/advanced/best-practice-security.html#at-a-minimum-disable-x-powered-by-header
   app.disable("x-powered-by");
 
+  if (viteDevServer) {
+    app.use(viteDevServer.middlewares)
+  } else {
+    // special production mode maps similar to build below.
+    app.use(
+      "/assets",
+      express.static("build/client/assets", {
+        immutable: true,
+        maxAge: "1y",
+      })
+    );
+  }
+
   // Remix fingerprints its assets so we can cache forever.
   app.use(
     "/build",
@@ -98,7 +114,11 @@ async function run() {
 
   app.use(morgan("tiny"));
 
-  app.all("*", remixHandler);
+  app.all("*", createRequestHandler({
+    build: viteDevServer
+      ? () => viteDevServer?.ssrLoadModule("virtual:remix/server-build")
+      : await import("./build/server/index.js")
+  }));
 
   const port = process.env.PORT || 3000;
   app.listen(port, () => {
