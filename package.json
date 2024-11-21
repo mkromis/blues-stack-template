@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "npm-run-all --sequential build:*",
-    "build:remix": "remix build",
+    "build:remix": "remix vite:build",
     "build:server": "esbuild --platform=node --format=esm server/server.ts --outdir=build --bundle --external:*",
     "dev": "npm-run-all --parallel dev:*",
     "dev:server": "cross-env NODE_ENV=development npm run build:server -- --watch",
