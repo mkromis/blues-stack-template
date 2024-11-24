@@ -15,6 +15,8 @@ export default defineConfig({
   },
   plugins: [!process.env.VITEST ? remix({
       ignoredRouteFiles: ["**/.*", "**/*.test.{ts,tsx}"],
+      future: {
+      }
     }) : react(),
     tsconfigPaths()],
   test: {

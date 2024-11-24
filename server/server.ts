@@ -21,13 +21,13 @@ async function run() {
   const VERSION_PATH = path.resolve("build/version.txt");
 
   const initialBuild = await reimportServer();
-  const remixHandler =
-    process.env.NODE_ENV === "development"
-      ? await createDevRequestHandler(initialBuild)
-      : createRequestHandler({
-          build: initialBuild,
-          mode: initialBuild.mode,
-        });
+  // const remixHandler =
+  //   process.env.NODE_ENV === "development"
+  //     ? await createDevRequestHandler(initialBuild)
+  //     : createRequestHandler({
+  //         build: initialBuild,
+  //         mode: initialBuild.mode,
+  //       });
 
   // setup dev server instance for dev.
   const viteDevServer =
