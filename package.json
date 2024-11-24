@@ -33,7 +33,6 @@
   "dependencies": {
     "@isaacs/express-prometheus-middleware": "^1.2.1",
     "@prisma/client": "^5.22.0",
-    "@remix-run/css-bundle": "2.15.0",
     "@remix-run/express": "2.15.0",
     "@remix-run/node": "2.15.0",
     "@remix-run/react": "2.15.0",

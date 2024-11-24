@@ -13,9 +13,9 @@ export default defineConfig({
   server: {
     port: 3000,
   },
-  plugins: [remix({
+  plugins: [!process.env.VITEST ? remix({
       ignoredRouteFiles: ["**/.*", "**/*.test.{ts,tsx}"],
-    }),
+    }) : react(),
     tsconfigPaths()],
   test: {
     globals: true,
