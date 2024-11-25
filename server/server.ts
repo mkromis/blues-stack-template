@@ -20,7 +20,7 @@ async function run() {
   const BUILD_PATH = path.resolve("build/index.js");
   const VERSION_PATH = path.resolve("build/version.txt");
 
-  const initialBuild = await reimportServer();
+  // const initialBuild = await reimportServer();
   // const remixHandler =
   //   process.env.NODE_ENV === "development"
   //     ? await createDevRequestHandler(initialBuild)
@@ -133,6 +133,7 @@ async function run() {
           viteDevServer.ssrLoadModule(
             "virtual:remix/server-build"
           )
+          // This next line is for production
         : await import("./build/server/index.js"),
     })
   );
@@ -141,9 +142,9 @@ async function run() {
   app.listen(port, () => {
     console.log(`✅ app ready: http://localhost:${port}`);
 
-    if (process.env.NODE_ENV === "development") {
-      broadcastDevReady(initialBuild);
-    }
+    // if (process.env.NODE_ENV === "development") {
+    //   broadcastDevReady(initialBuild);
+    // }
   });
 
   const metricsPort = process.env.METRICS_PORT || 3010;
