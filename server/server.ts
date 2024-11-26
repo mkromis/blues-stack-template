@@ -20,14 +20,24 @@ async function run() {
   const BUILD_PATH = path.resolve("build/index.js");
   const VERSION_PATH = path.resolve("build/version.txt");
 
-  const initialBuild = await reimportServer();
-  const remixHandler =
-    process.env.NODE_ENV === "development"
-      ? await createDevRequestHandler(initialBuild)
-      : createRequestHandler({
-          build: initialBuild,
-          mode: initialBuild.mode,
-        });
+  // const initialBuild = await reimportServer();
+  // const remixHandler =
+  //   process.env.NODE_ENV === "development"
+  //     ? await createDevRequestHandler(initialBuild)
+  //     : createRequestHandler({
+  //         build: initialBuild,
+  //         mode: initialBuild.mode,
+  //       });
+
+  // setup dev server instance for dev.
+  const viteDevServer =
+    process.env.NODE_ENV === "production"
+      ? undefined
+      : await import("vite").then((vite) =>
+        vite.createServer({
+          server: { middlewareMode: true },
+        })
+      );
 
   const app = express();
   const metricsApp = express();
@@ -86,27 +96,55 @@ async function run() {
   // http://expressjs.com/en/advanced/best-practice-security.html#at-a-minimum-disable-x-powered-by-header
   app.disable("x-powered-by");
 
-  // Remix fingerprints its assets so we can cache forever.
-  app.use(
-    "/build",
-    express.static("public/build", { immutable: true, maxAge: "1y" }),
-  );
+  // handle asset requests
+  if (viteDevServer) {
+    app.use(viteDevServer.middlewares);
+  } else {
+    app.use(
+      "/assets",
+      express.static("build/client/assets", {
+        immutable: true,
+        maxAge: "1y",
+      })
+    );
+  }
+  app.use(express.static("build/client", { maxAge: "1h" }));
 
-  // Everything else (like favicon.ico) is cached for an hour. You may want to be
-  // more aggressive with this caching.
-  app.use(express.static("public", { maxAge: "1h" }));
+  // This should be obsoleted
+  // // Remix fingerprints its assets so we can cache forever.
+  // app.use(
+  //   "/build",
+  //   express.static("public/build", { immutable: true, maxAge: "1y" }),
+  // );
+  //
+  // // Everything else (like favicon.ico) is cached for an hour. You may want to be
+  // // more aggressive with this caching.
+  // app.use(express.static("public", { maxAge: "1h" }));
 
   app.use(morgan("tiny"));
 
-  app.all("*", remixHandler);
+  //app.all("*", remixHandler);
+  // handle SSR requests
+  app.all(
+    "*",
+    createRequestHandler({
+      build: viteDevServer
+        ? () =>
+          viteDevServer.ssrLoadModule(
+            "virtual:remix/server-build"
+          )
+          // This next line is for production
+        : await import("./build/server/index.js"),
+    })
+  );
 
   const port = process.env.PORT || 3000;
   app.listen(port, () => {
     console.log(`✅ app ready: http://localhost:${port}`);
 
-    if (process.env.NODE_ENV === "development") {
-      broadcastDevReady(initialBuild);
-    }
+    // if (process.env.NODE_ENV === "development") {
+    //   broadcastDevReady(initialBuild);
+    // }
   });
 
   const metricsPort = process.env.METRICS_PORT || 3010;
